@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Language Translator</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f9f9f9; }
+    textarea, select, button { width: 100%; padding: 10px; margin-top: 10px; font-size: 16px; }
+    #output { background: #e0ffe0; min-height: 60px; padding: 10px; margin-top: 10px; border-radius: 5px; }
+    .row { display: flex; gap: 10px; }
+    .row > div { flex: 1; }
+  </style>
+</head>
+<body>
+
+  <h2>🌐 Language Translator</h2>
+
+  <textarea id="inputText" rows="4" placeholder="Enter text to translate..."></textarea>
+
+  <div class="row">
+    <div>
+      <label for="sourceLang">From:</label>
+      <select id="sourceLang">
+        <option value="en">English</option>
+        <option value="es">Spanish</option>
+        <option value="fr">French</option>
+        <option value="ta">Tamil</option>
+        <option value="hi">Hindi</option>
+        <!-- Add more as needed -->
+      </select>
+    </div>
+    <div>
+      <label for="targetLang">To:</label>
+      <select id="targetLang">
+        <option value="ta">Tamil</option>
+        <option value="en">English</option>
+        <option value="es">Spanish</option>
+        <option value="hi">Hindi</option>
+        <option value="fr">French</option>
+        <!-- Add more as needed -->
+      </select>
+    </div>
+  </div>
+
+  <button onclick="translateText()">Translate</button>
+
+  <div id="output"></div>
+
+  <div class="row">
+    <button onclick="copyText()">📋 Copy</button>
+    <button onclick="speakText()">🔊 Speak</button>
+  </div>
+
+  <script>
+    const API_KEY = "YOUR_GOOGLE_API_KEY"; // Replace with your actual API key
+
+    async function translateText() {
+      const inputText = document.getElementById("inputText").value;
+      const sourceLang = document.getElementById("sourceLang").value;
+      const targetLang = document.getElementById("targetLang").value;
+
+      const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}`;
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          q: inputText,
+          source: sourceLang,
+          target: targetLang,
+          format: "text"
+        }),
+      });
+
+      const data = await res.json();
+      if (data && data.data && data.data.translations[0]) {
+        document.getElementById("output").innerText = data.data.translations[0].translatedText;
+      } else {
+        document.getElementById("output").innerText = "Translation failed.";
+      }
+    }
+
+    function copyText() {
+      const output = document.getElementById("output").innerText;
+      navigator.clipboard.writeText(output);
+      alert("Translated text copied!");
+    }
+
+    function speakText() {
+      const output = document.getElementById("output").innerText;
+      const utterance = new SpeechSynthesisUtterance(output);
+      speechSynthesis.speak(utterance);
+    }
+  </script>
+</body>
+</html>
